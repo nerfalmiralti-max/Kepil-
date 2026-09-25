@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { ShieldCheck, UserRoundX } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { logoutAction } from "@/app/actions";
+import { defaultWorkspace } from "@/lib/auth-routing";
+import type { Role } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +19,19 @@ export default async function AccessPendingPage({
     data: { user },
   } = await db.auth.getUser();
   if (!user) redirect("/login");
+  const { data: profile } = await db
+    .from("profiles")
+    .select("role, organization_id")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (profile && ["ADMIN", "INSPECTOR", "CONTRACTOR"].includes(profile.role)) {
+    const { data: organization } = await db
+      .from("organizations")
+      .select("id")
+      .eq("id", profile.organization_id)
+      .maybeSingle();
+    if (organization) redirect(defaultWorkspace(profile.role as Role));
+  }
   return (
     <main className="access-page">
       <div className="access-card">
