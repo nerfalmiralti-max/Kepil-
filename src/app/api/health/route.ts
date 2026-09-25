@@ -1,12 +1,29 @@
 import { NextResponse } from "next/server";
-import { configured } from "@/lib/supabase/server";
+import { configured, createClient } from "@/lib/supabase/server";
 export async function GET() {
+  let databaseConnectionVerified = false;
+  if (configured()) {
+    try {
+      const db = await createClient();
+      const { error } = await db.from("organizations").select("id").limit(1);
+      databaseConnectionVerified = !error;
+    } catch {
+      databaseConnectionVerified = false;
+    }
+  }
   return NextResponse.json(
     {
       app: "KEPIL",
-      status: configured() ? "configured" : "setup_required",
-      databaseConnectionVerified: false,
+      status: !configured()
+        ? "setup_required"
+        : databaseConnectionVerified
+          ? "healthy"
+          : "degraded",
+      databaseConnectionVerified,
     },
-    { headers: { "Cache-Control": "no-store" } },
+    {
+      status: databaseConnectionVerified || !configured() ? 200 : 503,
+      headers: { "Cache-Control": "no-store" },
+    },
   );
 }
