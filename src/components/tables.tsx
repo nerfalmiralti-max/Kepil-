@@ -9,9 +9,13 @@ import { Badge, Empty } from "./ui";
 export function ClaimsTable({
   claims,
   compact = false,
+  emptyTitle = "Заявок по этим условиям нет",
+  emptyDescription = "Измените фильтры или зарегистрируйте новый дефект.",
 }: {
   claims: Claim[];
   compact?: boolean;
+  emptyTitle?: string;
+  emptyDescription?: string;
 }) {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("");
@@ -39,7 +43,7 @@ export function ClaimsTable({
             ),
     );
   return (
-    <div className="table-section">
+    <div className="table-section claims-table">
       {!compact && (
         <div className="filters">
           <label className="search-input">
@@ -92,83 +96,119 @@ export function ClaimsTable({
         </div>
       )}
       {filtered.length === 0 ? (
-        <Empty title="Заявок по этим условиям нет">
-          Измените фильтры или зарегистрируйте новый дефект.
-        </Empty>
+        <Empty title={emptyTitle}>{emptyDescription}</Empty>
       ) : (
-        <div
-          className="table-scroll"
-          role="region"
-          aria-label="Список гарантийных заявок"
-          tabIndex={0}
-        >
-          <table>
-            <thead>
-              <tr>
-                <th>Заявка / объект</th>
-                {!compact && <th>Подрядчик</th>}
-                <th>Статус</th>
-                <th>Ближайший срок</th>
-                <th>
-                  <span className="sr-only">Открыть</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((c) => (
-                <tr key={c.id}>
-                  <td>
-                    <Link className="row-title" href={`/claims/${c.id}`}>
-                      <span className="code">{claimCode(c.claim_number)}</span>
-                      {c.asset_name}
-                    </Link>
-                    <span className="cell-sub">
-                      {c.title}
-                      {c.repeat_defect && (
-                        <span className="repeat-inline"> · Повторный</span>
-                      )}
-                    </span>
-                  </td>
-                  {!compact && (
+        <>
+          <div
+            className="mobile-claim-list"
+            aria-label="Список гарантийных заявок"
+          >
+            {filtered.map((c) => (
+              <Link
+                href={`/claims/${c.id}`}
+                className="mobile-claim"
+                key={c.id}
+              >
+                <div className="mobile-claim-top">
+                  <span className="code">{claimCode(c.claim_number)}</span>
+                  <Badge value={c.status} />
+                </div>
+                <strong>{c.asset_name}</strong>
+                <span>
+                  {c.title}
+                  {c.repeat_defect ? " · Повторный дефект" : ""}
+                </span>
+                <div className="mobile-claim-bottom">
+                  <span>
+                    {date(
+                      c.status === "OPEN"
+                        ? c.response_deadline
+                        : c.repair_deadline,
+                      true,
+                    )}
+                  </span>
+                  <Badge value={c.sla_status} />
+                  <ArrowUpRight size={17} />
+                </div>
+              </Link>
+            ))}
+          </div>
+          <div
+            className="table-scroll"
+            role="region"
+            aria-label="Таблица гарантийных заявок"
+            tabIndex={0}
+          >
+            <table>
+              <thead>
+                <tr>
+                  <th>Заявка / объект</th>
+                  {!compact && <th>Подрядчик</th>}
+                  <th>Статус</th>
+                  <th>Ближайший срок</th>
+                  <th>
+                    <span className="sr-only">Открыть</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((c) => (
+                  <tr key={c.id}>
                     <td>
-                      <span className="contractor-cell">
-                        {c.contractor_name}
-                      </span>
+                      <Link className="row-title" href={`/claims/${c.id}`}>
+                        <span className="code">
+                          {claimCode(c.claim_number)}
+                        </span>
+                        {c.asset_name}
+                      </Link>
                       <span className="cell-sub">
-                        {c.microdistrict} микрорайон
-                      </span>
-                    </td>
-                  )}
-                  <td>
-                    <Badge value={c.status} />
-                  </td>
-                  <td>
-                    <div className="deadline-cell">
-                      <span>
-                        {date(
-                          c.status === "OPEN"
-                            ? c.response_deadline
-                            : c.repair_deadline,
-                          true,
+                        {c.title}
+                        {c.repeat_defect && (
+                          <span className="repeat-inline"> · Повторный</span>
                         )}
                       </span>
-                      <Badge value={c.sla_status} />
-                    </div>
-                  </td>
-                  <td>
-                    <Link
-                      className="icon-link"
-                      aria-label={`Открыть ${claimCode(c.claim_number)}`}
-                      href={`/claims/${c.id}`}
-                    >
-                      <ArrowUpRight size={17} />
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                    </td>
+                    {!compact && (
+                      <td>
+                        <span className="contractor-cell">
+                          {c.contractor_name}
+                        </span>
+                        <span className="cell-sub">
+                          {c.microdistrict} микрорайон
+                        </span>
+                      </td>
+                    )}
+                    <td>
+                      <Badge value={c.status} />
+                    </td>
+                    <td>
+                      <div className="deadline-cell">
+                        <span>
+                          {date(
+                            c.status === "OPEN"
+                              ? c.response_deadline
+                              : c.repair_deadline,
+                            true,
+                          )}
+                        </span>
+                        <Badge value={c.sla_status} />
+                      </div>
+                    </td>
+                    <td>
+                      <Link
+                        className="icon-link"
+                        aria-label={`Открыть ${claimCode(c.claim_number)}`}
+                        href={`/claims/${c.id}`}
+                      >
+                        <ArrowUpRight size={17} />
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
       {!compact && (
         <div className="table-footer">

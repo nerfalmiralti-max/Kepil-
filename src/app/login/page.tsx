@@ -72,8 +72,24 @@ export default async function LoginPage({
           </p>
           {params.error === "profile" && (
             <div className="notice danger">
-              Учётная запись не имеет профиля KEPIL. Администратор должен
-              назначить организацию и роль.
+              Доступ к KEPIL для этой учётной записи ещё не назначен. Обратитесь
+              к администратору организации.
+            </div>
+          )}
+          {params.error === "google" && (
+            <div className="notice danger" role="alert">
+              Вход через Google не завершён. Попробуйте ещё раз или войдите по
+              email.
+            </div>
+          )}
+          {params.error === "cancelled" && (
+            <div className="notice info" role="status">
+              Вход через Google был отменён. Вы можете попробовать ещё раз.
+            </div>
+          )}
+          {params.error === "callback" && (
+            <div className="notice danger" role="alert">
+              Не удалось подтвердить вход. Повторите попытку.
             </div>
           )}
           <LoginForm />

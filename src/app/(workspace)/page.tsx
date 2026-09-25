@@ -106,7 +106,7 @@ export default async function Dashboard() {
               {label}
               <Icon size={18} />
             </div>
-            <strong>{value.toString().padStart(2, "0")}</strong>
+            <strong>{value}</strong>
             <span>
               {note}
               <ArrowRight size={14} />

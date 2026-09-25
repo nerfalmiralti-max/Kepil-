@@ -17,7 +17,12 @@ export const getProfile = cache(async (): Promise<Profile> => {
     .select("*")
     .eq("id", user.id)
     .single();
-  if (profileError || !data) redirect("/login?error=profile");
+  if (
+    profileError ||
+    !data ||
+    !["ADMIN", "INSPECTOR", "CONTRACTOR"].includes(data.role)
+  )
+    redirect("/access-pending");
   return data as Profile;
 });
 

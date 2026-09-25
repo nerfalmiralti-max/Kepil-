@@ -20,7 +20,11 @@ export default async function InspectorPage() {
         </span>
       </div>
       <div className="panel table-panel">
-        <ClaimsTable claims={queue} />
+        <ClaimsTable
+          claims={queue}
+          emptyTitle="Очередь приёмки пуста"
+          emptyDescription="Новые работы появятся здесь после отправки подрядчиком на проверку."
+        />
       </div>
     </>
   );

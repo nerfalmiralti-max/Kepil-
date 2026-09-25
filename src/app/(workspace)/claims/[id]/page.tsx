@@ -37,6 +37,24 @@ export default async function ClaimDetail({
   const events = d.audit.filter(
     (e) => e.entity_id === id || e.entity_id === defect.id,
   );
+  const previousDefect = d.defects
+    .filter((item) => defect.previous_defect_ids.includes(item.id))
+    .sort((a, b) => b.reported_at.localeCompare(a.reported_at))[0];
+  const deadline =
+    c.status === "OPEN" ? c.response_deadline : c.repair_deadline;
+  const hours = Math.ceil(
+    (Date.parse(deadline) - (await currentTimestamp())) / 3600000,
+  );
+  const slaTitle =
+    c.status === "VERIFIED"
+      ? "Ремонт подтверждён"
+      : c.status === "REPAIR_SUBMITTED"
+        ? "Ожидает решения инспектора"
+        : c.sla_status === "OVERDUE"
+          ? `Просрочено на ${Math.max(1, Math.ceil(-hours / 24))} дн.`
+          : hours <= 48
+            ? `Осталось ${Math.max(0, hours)} ч.`
+            : `Осталось ${Math.ceil(hours / 24)} дн.`;
   return (
     <>
       <Link
@@ -56,6 +74,23 @@ export default async function ClaimDetail({
           </div>
         }
       />
+      <section
+        className={`sla-hero ${c.sla_status === "OVERDUE" ? "is-overdue" : c.sla_status === "DUE_SOON" ? "is-soon" : ""}`}
+        aria-label="Контроль срока заявки"
+      >
+        <div>
+          <span className="eyebrow">КОНТРОЛЬ СРОКА</span>
+          <strong>{slaTitle}</strong>
+          <span>
+            {c.status === "REPAIR_SUBMITTED"
+              ? "Срок ремонта приостановлен на время проверки"
+              : c.status === "VERIFIED"
+                ? "Результат сохранён в истории заявки"
+                : `Ближайший срок · ${date(deadline, true)}`}
+          </span>
+        </div>
+        <Badge value={c.sla_status} />
+      </section>
       <div className="claim-milestones">
         {[
           "Зарегистрирована",
@@ -80,7 +115,7 @@ export default async function ClaimDetail({
         })}
       </div>
       {defect.repeat_defect && (
-        <div className="notice warning">
+        <div className="notice warning repeat-alert">
           <RotateCcw size={22} />
           <div>
             <strong>
@@ -90,6 +125,12 @@ export default async function ClaimDetail({
               Ранее на этом объекте уже регистрировалась категория «
               {categories[defect.category]}».
             </p>
+            {previousDefect && (
+              <p className="repeat-previous">
+                Предыдущий случай: {date(previousDefect.reported_at, true)} ·{" "}
+                {previousDefect.title}
+              </p>
+            )}
             <Link href={`/assets/${c.asset_id}`} className="text-link">
               Посмотреть предыдущие дефекты
               <ExternalLink size={14} />
@@ -228,4 +269,8 @@ export default async function ClaimDetail({
       <AuditTrail events={events} />
     </>
   );
+}
+
+async function currentTimestamp() {
+  return Date.now();
 }

@@ -21,7 +21,13 @@ import type { Profile } from "@/lib/types";
 import { roleNames } from "@/lib/labels";
 import { logoutAction } from "@/app/actions";
 
-export function Navigation({ profile }: { profile: Profile }) {
+export function Navigation({
+  profile,
+  organizationName,
+}: {
+  profile: Profile;
+  organizationName: string;
+}) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
   const links =
@@ -130,6 +136,9 @@ export function Navigation({ profile }: { profile: Profile }) {
             <div>
               <strong>{profile.full_name}</strong>
               <small>{roleNames[profile.role]}</small>
+              <small className="account-organization" title={organizationName}>
+                {organizationName}
+              </small>
             </div>
             <form action={logoutAction}>
               <button

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Bell, ChevronRight, ShieldCheck } from "lucide-react";
 import { getProfile } from "@/lib/data";
+import { createClient } from "@/lib/supabase/server";
 import { Navigation } from "@/components/navigation";
 export const dynamic = "force-dynamic";
 export default async function WorkspaceLayout({
@@ -9,12 +10,21 @@ export default async function WorkspaceLayout({
   children: React.ReactNode;
 }) {
   const profile = await getProfile();
+  const db = await createClient();
+  const { data: organization } = await db
+    .from("organizations")
+    .select("name")
+    .eq("id", profile.organization_id)
+    .maybeSingle();
   return (
     <div className="app-shell">
       <a className="skip-link" href="#main">
         Перейти к содержимому
       </a>
-      <Navigation profile={profile} />
+      <Navigation
+        profile={profile}
+        organizationName={organization?.name ?? "Организация KEPIL"}
+      />
       <div className="workspace">
         <header className="topbar">
           <div className="breadcrumb">

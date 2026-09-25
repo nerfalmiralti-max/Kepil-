@@ -59,7 +59,7 @@ export default async function AssetDetail({
           ) : undefined
         }
       />
-      <div className="detail-grid">
+      <div className="detail-grid asset-detail-grid">
         <div className="stack">
           <section className="panel">
             <div className="panel-title">
