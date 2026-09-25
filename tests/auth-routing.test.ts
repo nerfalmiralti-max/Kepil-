@@ -27,4 +27,5 @@ test("OAuth landing respects the database role", () => {
   assert.equal(defaultWorkspace("ADMIN"), "/");
   assert.equal(defaultWorkspace("INSPECTOR"), "/inspector");
   assert.equal(defaultWorkspace("CONTRACTOR"), "/contractor");
+  assert.equal(defaultWorkspace("USER"), "/account");
 });

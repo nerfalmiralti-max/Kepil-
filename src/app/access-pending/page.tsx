@@ -24,6 +24,7 @@ export default async function AccessPendingPage({
     .select("role, organization_id")
     .eq("id", user.id)
     .maybeSingle();
+  if (profile?.role === "USER") redirect("/account");
   if (profile && ["ADMIN", "INSPECTOR", "CONTRACTOR"].includes(profile.role)) {
     const { data: organization } = await db
       .from("organizations")
@@ -46,11 +47,10 @@ export default async function AccessPendingPage({
             ? "GOOGLE-АККАУНТ ПОДТВЕРЖДЁН"
             : "АККАУНТ ПОДТВЕРЖДЁН"}
         </div>
-        <h1>Доступ ещё не назначен</h1>
+        <h1>Не удалось открыть аккаунт</h1>
         <p>
-          Для адреса <strong>{user.email}</strong> пока не предоставлен доступ к
-          рабочему пространству KEPIL. Доступ назначается администратором
-          организации.
+          Для адреса <strong>{user.email}</strong> не удалось подготовить профиль.
+          Повторите вход. Если ошибка сохранится, обратитесь к администратору KEPIL.
         </p>
         <div className="button-row">
           <Link className="button secondary" href="/login?error=profile">

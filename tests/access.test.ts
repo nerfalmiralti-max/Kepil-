@@ -15,7 +15,7 @@ test("entire transactional workflow executes under authenticated role, including
   const db = new PGlite();
   try {
     await db.exec(`create role anon; create role authenticated; create schema auth; create schema storage;
- create table auth.users(id uuid primary key); create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
+ create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz,raw_user_meta_data jsonb not null default '{}'); create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
  create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);
  create table storage.objects(id uuid default gen_random_uuid(),bucket_id text,name text,owner_id text,metadata jsonb,created_at timestamptz not null default now()); alter table storage.objects enable row level security;
  grant usage on schema auth,storage to authenticated; grant select,insert,delete on storage.objects to authenticated;`);
@@ -45,7 +45,7 @@ test("entire transactional workflow executes under authenticated role, including
       [contractor, "CONTRACTOR", uid(20, 2)],
       [other, "CONTRACTOR", uid(20, 3)],
     ]) {
-      await db.query("insert into auth.users values ($1)", [id]);
+      await db.query("insert into auth.users(id) values ($1)", [id]);
       await db.query(
         "insert into public.profiles(id,email,full_name,role,organization_id) values($1,$2,$3,$4,$5)",
         [id, `${role}-${id}@test.kz`, role, role, org],

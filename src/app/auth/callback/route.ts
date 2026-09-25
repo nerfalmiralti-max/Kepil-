@@ -30,33 +30,53 @@ export async function GET(request: NextRequest) {
     if (userError || !user) throw userError ?? new Error("No session");
 
     // The database profile is the sole source of role and organization.
-    const { data } = await db
+    let { data } = await db
       .from("profiles")
       .select("*")
       .eq("id", user.id)
       .maybeSingle();
+    if (!data) {
+      const { error: ensureError } = await db.rpc("ensure_own_profile");
+      if (ensureError) throw ensureError;
+      ({ data } = await db
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle());
+    }
     const profile = data as Profile | null;
     if (
       !profile ||
-      !["ADMIN", "INSPECTOR", "CONTRACTOR"].includes(profile.role)
+      !["USER", "ADMIN", "INSPECTOR", "CONTRACTOR"].includes(profile.role)
     ) {
       return NextResponse.redirect(
         new URL("/access-pending?provider=google", origin),
       );
     }
-    const { data: organization } = await db
-      .from("organizations")
-      .select("id")
-      .eq("id", profile.organization_id)
-      .maybeSingle();
-    if (!organization)
-      return NextResponse.redirect(
-        new URL("/access-pending?provider=google", origin),
-      );
+    if (profile.role !== "USER") {
+      if (!profile.organization_id)
+        return NextResponse.redirect(
+          new URL("/access-pending?provider=google", origin),
+        );
+      const { data: organization } = await db
+        .from("organizations")
+        .select("id")
+        .eq("id", profile.organization_id)
+        .maybeSingle();
+      if (!organization)
+        return NextResponse.redirect(
+          new URL("/access-pending?provider=google", origin),
+        );
+    }
 
     const next = safeWorkspacePath(request.nextUrl.searchParams.get("next"));
     return NextResponse.redirect(
-      new URL(next ?? defaultWorkspace(profile.role), origin),
+      new URL(
+        profile.role === "USER"
+          ? "/account"
+          : (next ?? defaultWorkspace(profile.role)),
+        origin,
+      ),
     );
   } catch {
     return NextResponse.redirect(new URL("/login?error=callback", origin));

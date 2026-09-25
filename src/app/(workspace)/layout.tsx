@@ -11,11 +11,15 @@ export default async function WorkspaceLayout({
 }) {
   const profile = await getProfile();
   const db = await createClient();
-  const { data: organization } = await db
-    .from("organizations")
-    .select("name")
-    .eq("id", profile.organization_id)
-    .maybeSingle();
+  const organization = profile.organization_id
+    ? (
+        await db
+          .from("organizations")
+          .select("name")
+          .eq("id", profile.organization_id)
+          .maybeSingle()
+      ).data
+    : null;
   return (
     <div className="app-shell">
       <a className="skip-link" href="#main">
@@ -23,7 +27,7 @@ export default async function WorkspaceLayout({
       </a>
       <Navigation
         profile={profile}
-        organizationName={organization?.name ?? "Организация KEPIL"}
+        organizationName={organization?.name ?? "Личный аккаунт"}
       />
       <div className="workspace">
         <header className="topbar">

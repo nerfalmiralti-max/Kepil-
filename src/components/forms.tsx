@@ -71,7 +71,7 @@ export function LoginForm() {
         Продолжить с Google
       </a>
       <div className="login-divider">
-        <span>или войти по email</span>
+        <span>или продолжить по email</span>
       </div>
       <form action={action} className="form-stack">
         <label>
@@ -81,7 +81,7 @@ export function LoginForm() {
             name="email"
             autoComplete="username"
             required
-            placeholder="inspector@kepil.demo"
+            placeholder="name@example.com"
           />
         </label>
         <label>
@@ -106,11 +106,11 @@ export function LoginForm() {
         </label>
         <Feedback state={state} />
         <button className="button primary full" disabled={pending}>
-          {pending ? "Вход…" : "Войти в рабочее пространство"}
+          {pending ? "Проверяем…" : "Продолжить"}
           <ArrowRight size={17} />
         </button>
         <p className="small muted">
-          <LockKeyhole size={13} /> Доступ по учётной записи вашей организации
+          <LockKeyhole size={13} /> Новый аккаунт создаётся автоматически
         </p>
       </form>
     </div>

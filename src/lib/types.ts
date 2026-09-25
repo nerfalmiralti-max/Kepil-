@@ -1,4 +1,4 @@
-export type Role = "ADMIN" | "INSPECTOR" | "CONTRACTOR";
+export type Role = "USER" | "ADMIN" | "INSPECTOR" | "CONTRACTOR";
 export type ClaimStatus =
   | "OPEN"
   | "ACKNOWLEDGED"
@@ -11,7 +11,8 @@ export type Profile = {
   email: string;
   full_name: string;
   role: Role;
-  organization_id: string;
+  organization_id: string | null;
+  created_at: string;
 };
 export type Contractor = {
   id: string;

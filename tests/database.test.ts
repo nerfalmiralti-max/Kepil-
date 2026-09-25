@@ -43,7 +43,7 @@ async function transition(id: string, status: string, comment = "") {
 }
 before(async () => {
   await db.exec(`create role anon; create role authenticated; create schema auth; create schema storage;
-    create table auth.users(id uuid primary key);
+    create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz,raw_user_meta_data jsonb not null default '{}');
     create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
     create table storage.buckets(id text primary key, name text, public boolean, file_size_limit bigint, allowed_mime_types text[]);
     create table storage.objects(id uuid default gen_random_uuid(), bucket_id text, name text, owner_id text, metadata jsonb, created_at timestamptz not null default now());
@@ -51,7 +51,7 @@ before(async () => {
     grant usage on schema auth, storage to authenticated;
     grant select, insert, delete on storage.objects to authenticated;`);
   await migrate(db);
-  await db.exec(`insert into auth.users values ('${admin}'), ('${inspector}'), ('${contractor}'), ('${outsider}');
+  await db.exec(`insert into auth.users(id) values ('${admin}'), ('${inspector}'), ('${contractor}'), ('${outsider}');
     insert into organizations(id,name,type) values ('20000000-0000-4000-8000-000000000001','Город','AKIMAT'),('20000000-0000-4000-8000-000000000002','Подрядчик A','CONTRACTOR'),('20000000-0000-4000-8000-000000000003','Подрядчик B','CONTRACTOR');
     insert into profiles(id,email,full_name,role,organization_id) values
     ('${admin}','admin@test.kz','Администратор','ADMIN','20000000-0000-4000-8000-000000000001'),

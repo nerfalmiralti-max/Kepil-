@@ -36,11 +36,13 @@ export const assetTypes: Record<string, string> = {
   PUBLIC_SPACE: "Общественные пространства",
 };
 export const roleNames: Record<string, string> = {
+  USER: "Пользователь",
   ADMIN: "Администратор",
   INSPECTOR: "Инспектор",
   CONTRACTOR: "Подрядчик",
 };
 export const auditNames: Record<string, string> = {
+  PROFILE_ROLE_CHANGED: "Изменён доступ пользователя",
   DEFECT_SUBMITTED: "Зарегистрирован дефект",
   CLAIM_CREATED: "Создана гарантийная заявка",
   CLAIM_ACKNOWLEDGED: "Подрядчик принял заявку",

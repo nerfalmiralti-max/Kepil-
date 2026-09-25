@@ -15,6 +15,8 @@ import {
   X,
   Bell,
   MapPin,
+  UserRound,
+  UsersRound,
 } from "lucide-react";
 import { useState } from "react";
 import type { Profile } from "@/lib/types";
@@ -31,26 +33,41 @@ export function Navigation({
   const path = usePathname();
   const [open, setOpen] = useState(false);
   const links =
-    profile.role === "CONTRACTOR"
-      ? [
-          { href: "/contractor", label: "Мои заявки", icon: Wrench },
-          { href: "/assets", label: "Объекты", icon: Building2 },
-        ]
-      : [
-          { href: "/", label: "Обзор города", icon: LayoutDashboard },
-          { href: "/assets", label: "Объекты", icon: Building2 },
-          { href: "/claims", label: "Гарантийные заявки", icon: ClipboardList },
-          { href: "/inspector", label: "Приёмка работ", icon: ClipboardCheck },
-          ...(profile.role === "ADMIN"
-            ? [
-                {
-                  href: "/registry",
-                  label: "Управление реестром",
-                  icon: Settings2,
-                },
-              ]
-            : []),
-        ];
+    profile.role === "USER"
+      ? [{ href: "/account", label: "Мой аккаунт", icon: UserRound }]
+      : profile.role === "CONTRACTOR"
+        ? [
+            { href: "/contractor", label: "Мои заявки", icon: Wrench },
+            { href: "/assets", label: "Объекты", icon: Building2 },
+          ]
+        : [
+            { href: "/", label: "Обзор города", icon: LayoutDashboard },
+            { href: "/assets", label: "Объекты", icon: Building2 },
+            {
+              href: "/claims",
+              label: "Гарантийные заявки",
+              icon: ClipboardList,
+            },
+            {
+              href: "/inspector",
+              label: "Приёмка работ",
+              icon: ClipboardCheck,
+            },
+            ...(profile.role === "ADMIN"
+              ? [
+                  {
+                    href: "/admin/users",
+                    label: "Пользователи",
+                    icon: UsersRound,
+                  },
+                  {
+                    href: "/registry",
+                    label: "Управление реестром",
+                    icon: Settings2,
+                  },
+                ]
+              : []),
+          ];
   return (
     <>
       <button
@@ -70,7 +87,13 @@ export function Navigation({
       )}
       <aside className={`sidebar ${open ? "is-open" : ""}`}>
         <Link
-          href={profile.role === "CONTRACTOR" ? "/contractor" : "/"}
+          href={
+            profile.role === "USER"
+              ? "/account"
+              : profile.role === "CONTRACTOR"
+                ? "/contractor"
+                : "/"
+          }
           className="brand"
           onClick={() => setOpen(false)}
         >
@@ -104,14 +127,16 @@ export function Navigation({
         </nav>
         <div className="nav-bottom">
           <nav aria-label="Дополнительно">
-            <Link
-              href="/notifications"
-              className={path === "/notifications" ? "active" : ""}
-              onClick={() => setOpen(false)}
-            >
-              <Bell size={18} />
-              Уведомления
-            </Link>
+            {profile.role !== "USER" && (
+              <Link
+                href="/notifications"
+                className={path === "/notifications" ? "active" : ""}
+                onClick={() => setOpen(false)}
+              >
+                <Bell size={18} />
+                Уведомления
+              </Link>
+            )}
             <Link
               href="/system"
               className={path === "/system" ? "active" : ""}

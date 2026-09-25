@@ -1,6 +1,7 @@
 import type { Role } from "./types";
 
 export function defaultWorkspace(role: Role): string {
+  if (role === "USER") return "/account";
   if (role === "CONTRACTOR") return "/contractor";
   if (role === "INSPECTOR") return "/inspector";
   return "/";

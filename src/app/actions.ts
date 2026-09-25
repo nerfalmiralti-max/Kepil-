@@ -23,7 +23,21 @@ export async function loginAction(
   try {
     const db = await createClient();
     const { error } = await db.auth.signInWithPassword(input.data);
-    if (error) return { error: friendlyError(error.message) };
+    if (error) {
+      if (error.code !== "invalid_credentials")
+        return { error: friendlyError(error.message) };
+      if (input.data.password.length < 6)
+        return { error: "Пароль должен содержать не менее 6 символов." };
+      const { data: signup, error: signupError } = await db.auth.signUp(
+        input.data,
+      );
+      if (signupError) return { error: friendlyError(signupError.message) };
+      if (!signup.session)
+        return {
+          success:
+            "Проверьте почту и подтвердите адрес, затем снова нажмите «Продолжить». Если аккаунт уже существует, проверьте пароль.",
+        };
+    }
   } catch {
     return {
       error: "Сервис входа недоступен. Проверьте подключение Supabase.",
@@ -37,12 +51,38 @@ export async function logoutAction() {
   redirect("/login");
 }
 
+export async function assignUserRoleAction(
+  _: ActionState,
+  form: FormData,
+): Promise<ActionState> {
+  const actor = await getProfile();
+  if (actor.role !== "ADMIN")
+    return { error: "Доступно только администратору." };
+  const input = z
+    .object({
+      target_user: z.uuid(),
+      target_role: z.enum(["USER", "INSPECTOR", "CONTRACTOR", "ADMIN"]),
+      target_org: z.union([z.uuid(), z.literal("")]),
+    })
+    .safeParse(Object.fromEntries(form));
+  if (!input.success) return { error: "Проверьте роль и организацию." };
+  const db = await createClient();
+  const { error } = await db.rpc("assign_user_role", {
+    target_user: input.data.target_user,
+    target_role: input.data.target_role,
+    target_org: input.data.target_org || null,
+  });
+  if (error) return { error: friendlyError(error.message) };
+  revalidatePath("/admin/users");
+  return { success: "Доступ обновлён и записан в журнал." };
+}
+
 export async function submitDefectAction(
   _: ActionState,
   form: FormData,
 ): Promise<ActionState> {
   const profile = await getProfile();
-  if (profile.role === "CONTRACTOR")
+  if (profile.role !== "ADMIN" && profile.role !== "INSPECTOR")
     return { error: "Дефекты регистрирует инспектор или администратор." };
   const input = defectSchema.safeParse(Object.fromEntries(form));
   if (!input.success)
@@ -91,7 +131,7 @@ export async function uploadAction(
   form: FormData,
 ): Promise<ActionState> {
   const profile = await getProfile();
-  if (profile.role === "INSPECTOR")
+  if (profile.role !== "ADMIN" && profile.role !== "CONTRACTOR")
     return { error: "Подтверждение ремонта загружает подрядчик." };
   const cid = z.uuid().safeParse(form.get("cid"));
   const file = form.get("file");

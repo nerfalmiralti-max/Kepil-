@@ -12,15 +12,25 @@ export const getProfile = cache(async (): Promise<Profile> => {
     error,
   } = await db.auth.getUser();
   if (error || !user) redirect("/login");
-  const { data, error: profileError } = await db
+  let { data, error: profileError } = await db
     .from("profiles")
     .select("*")
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
+  if (!data && !profileError) {
+    const { error: ensureError } = await db.rpc("ensure_own_profile");
+    if (!ensureError) {
+      ({ data, error: profileError } = await db
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle());
+    }
+  }
   if (
     profileError ||
     !data ||
-    !["ADMIN", "INSPECTOR", "CONTRACTOR"].includes(data.role)
+    !["USER", "ADMIN", "INSPECTOR", "CONTRACTOR"].includes(data.role)
   )
     redirect("/access-pending");
   return data as Profile;
@@ -28,6 +38,7 @@ export const getProfile = cache(async (): Promise<Profile> => {
 
 export const getDataset = cache(async (): Promise<Dataset> => {
   const profile = await getProfile();
+  if (profile.role === "USER") redirect("/account");
   const db = await createClient();
   const { error: slaError } = await db.rpc("refresh_sla");
   if (slaError) throw new Error(`Не удалось обновить SLA: ${slaError.message}`);

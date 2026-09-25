@@ -11,10 +11,11 @@ import {
   Camera,
   Building2,
 } from "lucide-react";
-import { getDataset } from "@/lib/data";
+import { getDataset, getProfile } from "@/lib/data";
 import { PageHeader } from "@/components/ui";
 export default async function SystemPage() {
-  const d = await getDataset();
+  const profile = await getProfile();
+  const d = profile.role === "USER" ? null : await getDataset();
   const capabilities = [
     {
       icon: ShieldCheck,
@@ -68,8 +69,10 @@ export default async function SystemPage() {
         <Database size={20} />
         <strong>База подключена</strong>
         <span>
-          {d.assets.length} доступных объектов · {d.claims.length} доступных
-          заявок · Supabase PostgreSQL
+          {d
+            ? `${d.assets.length} доступных объектов · ${d.claims.length} доступных заявок · `
+            : ""}
+          Supabase PostgreSQL
         </span>
       </div>
       <section className="panel">
