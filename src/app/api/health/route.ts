@@ -6,7 +6,9 @@ export async function GET() {
     try {
       const db = await createClient();
       const { error } = await db.from("organizations").select("id").limit(1);
-      databaseConnectionVerified = !error;
+      // The anonymous role is intentionally denied table access. PostgreSQL
+      // error 42501 still proves PostgREST reached the database.
+      databaseConnectionVerified = !error || error.code === "42501";
     } catch {
       databaseConnectionVerified = false;
     }
