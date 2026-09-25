@@ -292,6 +292,7 @@ strong {
   width: 242px;
   position: fixed;
   inset: 0 auto 0 0;
+  overflow-y: auto;
   background: var(--nav);
   color: #dbe7ec;
   display: flex;
