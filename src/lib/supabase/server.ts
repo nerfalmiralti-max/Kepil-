@@ -13,7 +13,7 @@ export async function createClient() {
     throw new Error("Supabase не настроен. Заполните переменные окружения.");
   const jar = await cookies();
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).origin,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
       cookies: {

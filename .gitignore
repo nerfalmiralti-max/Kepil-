@@ -10,3 +10,5 @@ playwright-report/
 dev-port.txt
 .local/
 supabase/.temp/
+
+.vercel

@@ -6,7 +6,7 @@ export async function proxy(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (!url || !key) return response;
-  const supabase = createServerClient(url, key, {
+  const supabase = createServerClient(new URL(url).origin, key, {
     cookies: {
       getAll: () => request.cookies.getAll(),
       setAll(values) {
