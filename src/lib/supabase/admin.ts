@@ -11,7 +11,7 @@ export function createAdminClient() {
     secret === process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
   )
     throw new Error("Supabase Admin API is not configured");
-  return createClient(url, secret, {
+  return createClient(new URL(url).origin, secret, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
