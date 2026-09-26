@@ -14,7 +14,6 @@ import {
   Menu,
   X,
   Bell,
-  MapPin,
   UserRound,
   UsersRound,
 } from "lucide-react";
@@ -41,16 +40,16 @@ export function Navigation({
             { href: "/assets", label: "Объекты", icon: Building2 },
           ]
         : [
-            { href: "/", label: "Обзор города", icon: LayoutDashboard },
+            { href: "/", label: "Обзор", icon: LayoutDashboard },
             { href: "/assets", label: "Объекты", icon: Building2 },
             {
               href: "/claims",
-              label: "Гарантийные заявки",
+              label: "Претензии",
               icon: ClipboardList,
             },
             {
               href: "/inspector",
-              label: "Приёмка работ",
+              label: "Инспекция",
               icon: ClipboardCheck,
             },
             ...(profile.role === "ADMIN"
@@ -62,7 +61,7 @@ export function Navigation({
                   },
                   {
                     href: "/registry",
-                    label: "Управление реестром",
+                    label: "Реестр",
                     icon: Settings2,
                   },
                 ]
@@ -105,7 +104,7 @@ export function Navigation({
           </span>
         </Link>
         <div className="city-label">
-          <MapPin size={14} /> Актау <span>Мангистауская область</span>
+          Актау <span>Мангистауская область</span>
         </div>
         <div className="nav-caption">РАБОЧЕЕ ПРОСТРАНСТВО</div>
         <nav aria-label="Основная навигация">
@@ -145,19 +144,18 @@ export function Navigation({
               <Network size={18} />
               Как работает KEPIL
             </Link>
+            {profile.role !== "USER" && (
+              <Link
+                href="/account"
+                className={path === "/account" ? "active" : ""}
+                onClick={() => setOpen(false)}
+              >
+                <UserRound size={18} />
+                Аккаунт
+              </Link>
+            )}
           </nav>
-          <div className="sidebar-demo">
-            <span className="live-dot" />
-            Демонстрационный проект<small>Сценарии инфраструктуры Актау</small>
-          </div>
           <div className="account">
-            <span className="avatar">
-              {profile.full_name
-                .split(" ")
-                .slice(0, 2)
-                .map((s) => s[0])
-                .join("")}
-            </span>
             <div>
               <strong>{profile.full_name}</strong>
               <small>{roleNames[profile.role]}</small>

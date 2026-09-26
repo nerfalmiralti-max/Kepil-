@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getDataset } from "@/lib/data";
-import { PageHeader } from "@/components/ui";
+import { PageHeader, Empty } from "@/components/ui";
 import { ClaimsTable } from "@/components/tables";
 export default async function ContractorPage({
   searchParams,
@@ -42,7 +42,7 @@ export default async function ContractorPage({
     <>
       <PageHeader
         eyebrow="КАБИНЕТ ПОДРЯДЧИКА"
-        title="Мои гарантийные обязательства"
+        title="Мои обязательства"
         description="Примите заявку, выполните ремонт и приложите фотографии для инспектора."
       />
       <div className="workspace-steps">
@@ -72,13 +72,21 @@ export default async function ContractorPage({
           </Link>
         ))}
       </nav>
-      <div className="panel table-panel">
-        <ClaimsTable
-          claims={claims}
-          emptyTitle="В этом разделе пока нет заявок"
-          emptyDescription="Заявки появятся здесь после изменения их статуса."
-        />
-      </div>
+      {claims.length ? (
+        <div className="panel table-panel">
+          <ClaimsTable claims={claims} />
+        </div>
+      ) : (
+        <section className="panel">
+          <Empty title="В этом разделе нет заявок">
+            {selected === "review"
+              ? "Отправленные на проверку ремонты появятся здесь."
+              : selected === "done"
+                ? "Подтверждённые инспектором ремонты появятся здесь."
+                : "Новые гарантийные претензии появятся после назначения вашей организации."}
+          </Empty>
+        </section>
+      )}
     </>
   );
 }

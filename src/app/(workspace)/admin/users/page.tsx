@@ -38,20 +38,28 @@ export default async function AdminUsersPage() {
         title="Пользователи"
         description="Назначайте роли и организацию. Каждое изменение фиксируется в журнале."
       />
+      <p className="users-count">Всего пользователей: {users.length}</p>
       <div className="users-list">
+        <div className="users-heading" aria-hidden="true">
+          <span>Имя</span>
+          <span>Email</span>
+          <span>Роль</span>
+          <span>Организация</span>
+          <span>Добавлен</span>
+        </div>
         {users.map((user) => (
           <section className="panel user-row" key={user.id}>
             <div className="user-summary">
               <div>
                 <h2>{user.full_name}</h2>
+              </div>
+              <div>
                 <span>{user.email}</span>
               </div>
               <div>
-                <span>Текущая роль</span>
                 <strong>{roleNames[user.role]}</strong>
               </div>
               <div>
-                <span>Организация</span>
                 <strong>
                   {user.organization_id
                     ? (orgNames.get(user.organization_id) ?? "—")
@@ -59,7 +67,6 @@ export default async function AdminUsersPage() {
                 </strong>
               </div>
               <div>
-                <span>Создан</span>
                 <strong>{date(user.created_at)}</strong>
               </div>
             </div>

@@ -5,16 +5,12 @@ import { date, roleNames } from "@/lib/labels";
 
 export default async function AccountPage() {
   const profile = await getProfile();
-  const firstName = profile.full_name.split(" ")[0] || "пользователь";
   return (
     <div className="member-page">
       <header className="member-heading">
         <span>ЛИЧНЫЙ ДОСТУП / KEPIL</span>
-        <h1>Добро пожаловать, {firstName}.</h1>
-        <p>
-          Ваш аккаунт активен. Здесь находятся данные профиля и доступные
-          разделы.
-        </p>
+        <h1>Аккаунт</h1>
+        <p>Данные профиля, доступ и безопасность.</p>
       </header>
       <div className="member-columns">
         <section className="member-section">
@@ -52,9 +48,15 @@ export default async function AccountPage() {
             <div className="member-access-copy">
               <strong>Базовый доступ открыт</strong>
               <p>
-                Вы можете просматривать информацию о KEPIL. Муниципальные
-                действия появятся после назначения роли администратором.
+                Доступен раздел «Как работает KEPIL». Для работы с объектами и
+                претензиями администратор должен назначить роль и организацию.
               </p>
+              <ol className="member-workflow">
+                <li>Объект вносят в реестр.</li>
+                <li>При дефекте проверяют гарантию и создают претензию.</li>
+                <li>Подрядчик ремонтирует и загружает доказательства.</li>
+                <li>Инспектор проверяет результат.</li>
+              </ol>
             </div>
           ) : (
             <div className="member-access-copy">
@@ -70,6 +72,17 @@ export default async function AccountPage() {
           )}
           <Link className="member-link" href="/system">
             Как работает KEPIL <ArrowUpRight size={17} />
+          </Link>
+        </section>
+        <section className="member-section">
+          <div className="member-section-top">
+            <h2>Безопасность</h2>
+          </div>
+          <p className="member-security-copy">
+            Пароль KEPIL можно сменить по ссылке, отправленной на ваш email.
+          </p>
+          <Link className="member-link" href="/forgot-password">
+            Сменить пароль <ArrowUpRight size={17} />
           </Link>
         </section>
       </div>

@@ -6,10 +6,7 @@ export default function ErrorPage({ reset }: { reset: () => void }) {
     <div className="error-state">
       <AlertTriangle size={34} />
       <h1>Не удалось загрузить данные</h1>
-      <p>
-        Проверьте соединение и доступность Supabase. Повторная попытка не
-        создаст повторных записей.
-      </p>
+      <p>Проверьте соединение и повторите попытку. Ваши данные сохранены.</p>
       <div className="button-row">
         <button className="button primary" onClick={reset}>
           Повторить попытку

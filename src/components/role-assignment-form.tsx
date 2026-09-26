@@ -20,13 +20,28 @@ export function RoleAssignmentForm({
     {},
   );
   const [selectedRole, setSelectedRole] = useState<Role>(role);
+  const [selectedOrg, setSelectedOrg] = useState(organizationId ?? "");
+  const changed =
+    selectedRole !== role || selectedOrg !== (organizationId ?? "");
   const options = organizations.filter((org) =>
     selectedRole === "CONTRACTOR"
       ? org.type === "CONTRACTOR"
       : org.type !== "CONTRACTOR",
   );
   return (
-    <form action={action} className="role-form">
+    <form
+      action={action}
+      className="role-form"
+      onSubmit={(event) => {
+        if (
+          !window.confirm(
+            "Изменить роль или организацию пользователя? Изменение доступа будет записано в журнал.",
+          )
+        ) {
+          event.preventDefault();
+        }
+      }}
+    >
       <input type="hidden" name="target_user" value={userId} />
       {selectedRole === "USER" && (
         <input type="hidden" name="target_org" value="" />
@@ -36,7 +51,10 @@ export function RoleAssignmentForm({
         <select
           name="target_role"
           value={selectedRole}
-          onChange={(event) => setSelectedRole(event.target.value as Role)}
+          onChange={(event) => {
+            setSelectedRole(event.target.value as Role);
+            setSelectedOrg("");
+          }}
         >
           <option value="USER">Пользователь</option>
           <option value="INSPECTOR">Инспектор</option>
@@ -48,8 +66,8 @@ export function RoleAssignmentForm({
         Организация
         <select
           name="target_org"
-          key={selectedRole}
-          defaultValue={selectedRole === role ? (organizationId ?? "") : ""}
+          value={selectedOrg}
+          onChange={(event) => setSelectedOrg(event.target.value)}
           disabled={selectedRole === "USER"}
           required={selectedRole !== "USER"}
         >
@@ -63,7 +81,7 @@ export function RoleAssignmentForm({
           ))}
         </select>
       </label>
-      <button className="button secondary" disabled={pending}>
+      <button className="button secondary" disabled={pending || !changed}>
         {pending ? "Сохранение…" : "Сохранить"}
       </button>
       {state.error && (

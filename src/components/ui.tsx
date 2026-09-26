@@ -71,9 +71,8 @@ export function Empty({
 }) {
   return (
     <div className="empty">
-      <ShieldCheck size={30} strokeWidth={1.3} />
       <h3>{title}</h3>
-      <p>{children ?? "Новые записи появятся здесь после регистрации."}</p>
+      <p>{children ?? "Новые записи появятся здесь после первого действия."}</p>
     </div>
   );
 }

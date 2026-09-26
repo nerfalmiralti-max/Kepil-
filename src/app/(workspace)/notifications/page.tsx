@@ -12,12 +12,14 @@ export default async function NotificationsPage() {
         title="Уведомления"
         description="Назначения и изменения по доступным вам гарантийным заявкам."
         action={
-          <form action={readNotificationsAction}>
-            <button className="button secondary">
-              <CheckCheck size={17} />
-              Отметить прочитанными
-            </button>
-          </form>
+          d.notifications.some((n) => !n.read_at) ? (
+            <form action={readNotificationsAction}>
+              <button className="button secondary">
+                <CheckCheck size={17} />
+                Отметить прочитанными
+              </button>
+            </form>
+          ) : undefined
         }
       />
       <section className="panel">

@@ -1,19 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import {
-  Plus,
-  ShieldCheck,
-  ClipboardList,
-  Clock3,
-  RotateCcw,
-  ArrowRight,
-  CircleCheck,
-  Activity,
-} from "lucide-react";
+import { Plus, ArrowRight, CircleCheck } from "lucide-react";
 import { getDataset } from "@/lib/data";
 import { PageHeader, TextLink, Empty } from "@/components/ui";
 import { ClaimsTable } from "@/components/tables";
-import { statuses, date, auditNames } from "@/lib/labels";
+import { date, auditNames } from "@/lib/labels";
 export default async function Dashboard() {
   const d = await getDataset();
   if (d.profile.role === "CONTRACTOR") redirect("/contractor");
@@ -23,19 +14,6 @@ export default async function Dashboard() {
   const open = d.claims.filter((c) => c.status !== "VERIFIED");
   const overdue = open.filter((c) => c.sla_status === "OVERDUE");
   const repeats = d.defects.filter((x) => x.repeat_defect);
-  const finished = d.claims.filter(
-    (c) => c.status === "VERIFIED" && c.completed_at,
-  );
-  const avg = finished.length
-    ? (
-        finished.reduce(
-          (sum, c) =>
-            sum +
-            (Date.parse(c.completed_at!) - Date.parse(c.created_at)) / 86400000,
-          0,
-        ) / finished.length
-      ).toFixed(1)
-    : null;
   const attention = [...open]
     .sort(
       (a, b) =>
@@ -49,7 +27,6 @@ export default async function Dashboard() {
       label: "Активные гарантии",
       value: active,
       note: `${d.assets.length} объектов в реестре`,
-      icon: ShieldCheck,
       tone: "teal",
       href: "/assets",
     },
@@ -57,7 +34,6 @@ export default async function Dashboard() {
       label: "Открытые заявки",
       value: open.length,
       note: "На всех этапах до приёмки",
-      icon: ClipboardList,
       tone: "blue",
       href: "/claims",
     },
@@ -65,7 +41,6 @@ export default async function Dashboard() {
       label: "Просроченные",
       value: overdue.length,
       note: "Требуют внимания службы",
-      icon: Clock3,
       tone: "red",
       href: "/claims",
     },
@@ -73,7 +48,6 @@ export default async function Dashboard() {
       label: "Повторные дефекты",
       value: repeats.length,
       note: "Совпадения в окне 90 дней",
-      icon: RotateCcw,
       tone: "amber",
       href: "/assets",
     },
@@ -82,8 +56,8 @@ export default async function Dashboard() {
     <>
       <PageHeader
         eyebrow="ОПЕРАТИВНАЯ СВОДКА"
-        title="Город под контролем"
-        description="Гарантии, обязательства подрядчиков и качество выполненных работ."
+        title="Обзор"
+        description="Сроки гарантий и претензий по объектам Актау."
         action={
           <Link className="button primary" href="/defects/new">
             <Plus size={18} />
@@ -97,20 +71,13 @@ export default async function Dashboard() {
           Сводка на {date(d.today)}
         </span>
         <span>Актау, Мангистауская область</span>
-        <span>Источник: база KEPIL</span>
       </div>
       <div className="metrics">
-        {metrics.map(({ label, value, note, icon: Icon, tone, href }) => (
+        {metrics.map(({ label, value, note, tone, href }) => (
           <Link key={label} href={href} className={`metric metric-${tone}`}>
-            <div className="metric-label">
-              {label}
-              <Icon size={18} />
-            </div>
+            <div className="metric-label">{label}</div>
             <strong>{value}</strong>
-            <span>
-              {note}
-              <ArrowRight size={14} />
-            </span>
+            <span>{note}</span>
           </Link>
         ))}
       </div>
@@ -123,63 +90,18 @@ export default async function Dashboard() {
             </div>
             <TextLink href="/claims">Все заявки</TextLink>
           </div>
-          <ClaimsTable claims={attention} compact />
-        </section>
-        <section className="panel status-chart">
-          <div className="panel-title">
-            <h2>Заявки по статусам</h2>
-            <span className="small muted">Всего {d.claims.length}</span>
-          </div>
-          <div
-            className="bar-chart"
-            role="img"
-            aria-label={`Распределение ${d.claims.length} заявок по статусам`}
-          >
-            {[
-              "OPEN",
-              "ACKNOWLEDGED",
-              "IN_PROGRESS",
-              "REPAIR_SUBMITTED",
-              "REJECTED",
-              "VERIFIED",
-            ].map((s) => {
-              const count = d.claims.filter((c) => c.status === s).length;
-              return (
-                <div className="bar-row" key={s}>
-                  <div>
-                    <span>{statuses[s]}</span>
-                    <strong>{count}</strong>
-                  </div>
-                  <div className="bar-track">
-                    <span
-                      className={`bar-${s.toLowerCase()}`}
-                      style={{
-                        width: `${d.claims.length ? (count / d.claims.length) * 100 : 0}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="chart-foot">
-            <CircleCheck size={19} />
-            <div>
-              <strong>{finished.length} ремонтов принято</strong>
-              <span>
-                {avg
-                  ? `Среднее время ремонта: ${avg} дн.`
-                  : "Среднее время появится после первого ремонта"}
-              </span>
-            </div>
-          </div>
+          {attention.length ? (
+            <ClaimsTable claims={attention} compact />
+          ) : (
+            <Empty title="Нет претензий, требующих внимания">
+              Новые претензии появятся после регистрации дефекта на гарантийном
+              объекте.
+            </Empty>
+          )}
         </section>
         <section className="panel activity-panel">
           <div className="panel-title">
-            <h2>
-              <Activity size={18} />
-              Последние события
-            </h2>
+            <h2>Последние события</h2>
             <span className="small muted">Журнал ответственности</span>
           </div>
           {d.audit.length ? (
@@ -223,13 +145,6 @@ export default async function Dashboard() {
             const pending = own.filter((c) => c.status !== "VERIFIED");
             return (
               <div className="contractor-row" key={k.id}>
-                <span className="company-monogram">
-                  {k.name
-                    .replace(/ТОО|«|»|Демо/g, "")
-                    .trim()
-                    .slice(0, 2)
-                    .toUpperCase()}
-                </span>
                 <div>
                   <strong>{k.name}</strong>
                   <span>
@@ -248,25 +163,11 @@ export default async function Dashboard() {
         </section>
       </div>
       <div className="workflow-ribbon">
-        <ShieldCheck size={21} />
-        <strong>От дефекта до подтверждённого ремонта</strong>
-        <span>
-          Гарантия
-          <ArrowRight size={13} />
-          Подрядчик
-          <ArrowRight size={13} />
-          Ремонт
-          <ArrowRight size={13} />
-          Приёмка
-        </span>
+        <strong>Нужна схема работы с претензией?</strong>
         <Link href="/system">
-          Как это работает
-          <ArrowUpRightIcon />
+          Открыть порядок работы <ArrowRight size={14} />
         </Link>
       </div>
     </>
   );
-}
-function ArrowUpRightIcon() {
-  return <ArrowRight size={15} />;
 }

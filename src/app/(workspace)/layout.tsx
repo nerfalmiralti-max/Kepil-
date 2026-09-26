@@ -39,13 +39,15 @@ export default async function WorkspaceLayout({
           </div>
           <div className="topbar-right">
             <span className="demo-tag">ДЕМО · НЕ ОФИЦИАЛЬНЫЕ ДАННЫЕ</span>
-            <Link
-              className="icon-button"
-              aria-label="Уведомления"
-              href="/notifications"
-            >
-              <Bell size={19} />
-            </Link>
+            {profile.role !== "USER" && (
+              <Link
+                className="icon-button"
+                aria-label="Уведомления"
+                href="/notifications"
+              >
+                <Bell size={19} />
+              </Link>
+            )}
           </div>
         </header>
         <main id="main" className="main-content">

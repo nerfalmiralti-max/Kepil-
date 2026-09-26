@@ -70,7 +70,6 @@ export default async function ClaimDetail({
         action={
           <div className="button-row">
             <Badge value={c.status} />
-            <Badge value={c.sla_status} />
           </div>
         }
       />
@@ -89,7 +88,6 @@ export default async function ClaimDetail({
                 : `Ближайший срок · ${date(deadline, true)}`}
           </span>
         </div>
-        <Badge value={c.sla_status} />
       </section>
       <div className="claim-milestones">
         {[

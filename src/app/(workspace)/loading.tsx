@@ -3,12 +3,11 @@ export default function Loading() {
     <div className="loading-state" role="status">
       <div className="skeleton heading" />
       <div className="skeleton subtitle" />
-      <div className="metrics">
+      <div className="loading-rows" aria-hidden="true">
         {[1, 2, 3, 4].map((n) => (
-          <div className="skeleton metric" key={n} />
+          <div className="skeleton loading-row" key={n} />
         ))}
       </div>
-      <div className="skeleton content" />
       <span className="sr-only">Загрузка данных KEPIL…</span>
     </div>
   );

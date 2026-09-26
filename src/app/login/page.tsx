@@ -28,15 +28,14 @@ export default async function LoginPage({
         </div>
         <div className="login-headline">
           <div className="login-region">АКТАУ · МАНГИСТАУСКАЯ ОБЛАСТЬ</div>
-          <h1>
-            Гарантия
-            <br />
-            должна работать<span>.</span>
-          </h1>
-          <p>
-            Объекты города, гарантийные сроки и ответственные исполнители — в
-            одной проверяемой истории.
-          </p>
+          <h1>Контроль гарантий городской инфраструктуры</h1>
+          <p>Объекты, сроки и ответственные — в одной проверяемой истории.</p>
+          <ol className="login-process" aria-label="Порядок работы">
+            <li>Дефект</li>
+            <li>Гарантия</li>
+            <li>Подрядчик</li>
+            <li>Проверка</li>
+          </ol>
         </div>
         <div className="login-demo">
           <span>ДЕМОНСТРАЦИОННЫЙ ПРОЕКТ</span>
@@ -46,7 +45,7 @@ export default async function LoginPage({
       <section className="login-form-area">
         <div className="login-form-card">
           <div className="login-form-kicker">ЛИЧНЫЙ ДОСТУП</div>
-          <h2>Начните работу</h2>
+          <h2>Вход в KEPIL</h2>
           <p className="login-form-intro">
             Войдите с паролем KEPIL или создайте новый аккаунт с адресом Gmail.
           </p>
