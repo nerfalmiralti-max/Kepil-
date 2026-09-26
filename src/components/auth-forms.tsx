@@ -72,6 +72,7 @@ function PasswordInput({
 export function LoginForm() {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [loginEmail, setLoginEmail] = useState("");
+  const [registerName, setRegisterName] = useState("");
   const [registerEmail, setRegisterEmail] = useState("");
   const [loginState, login, loginPending] = useActionState(
     loginAction,
@@ -140,6 +141,19 @@ export function LoginForm() {
           </form>
         ) : (
           <form action={register} className="auth-form">
+            <label className="auth-field">
+              <span>Имя</span>
+              <input
+                type="text"
+                name="full_name"
+                autoComplete="name"
+                placeholder="Ваше имя"
+                maxLength={200}
+                value={registerName}
+                onChange={(event) => setRegisterName(event.target.value)}
+                required
+              />
+            </label>
             <label className="auth-field">
               <span>Адрес Gmail</span>
               <input

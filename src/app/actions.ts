@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getProfile } from "@/lib/data";
 import { defaultWorkspace } from "@/lib/auth-routing";
 import { validateLogin, validateRegistration } from "@/lib/auth-validation";
@@ -44,36 +45,90 @@ export async function registerAction(
   _: ActionState,
   form: FormData,
 ): Promise<ActionState> {
-  const input = validateRegistration(
-    String(form.get("email") ?? ""),
-    String(form.get("password") ?? ""),
-    String(form.get("repeat_password") ?? ""),
-  );
+  const fullName = form.get("full_name");
+  const email = form.get("email");
+  const password = form.get("password");
+  const repeatPassword = form.get("repeat_password");
+  if (
+    typeof fullName !== "string" ||
+    typeof email !== "string" ||
+    typeof password !== "string" ||
+    typeof repeatPassword !== "string"
+  )
+    return { error: "Проверьте данные регистрации." };
+  const input = validateRegistration(email, password, repeatPassword, fullName);
   if (!input.data) return { error: input.error };
+  const { fullName: name, ...credentials } = input.data;
+  let createdUserId: string;
+  let admin: ReturnType<typeof createAdminClient>;
   try {
-    const db = await createClient();
-    const { data, error } = await db.auth.signUp(input.data);
+    admin = createAdminClient();
+    const { data, error } = await admin.auth.admin.createUser({
+      ...credentials,
+      email_confirm: true,
+      user_metadata: { full_name: name },
+    });
     if (error) {
-      if (error.code === "user_already_exists")
-        return { error: "Этот email уже зарегистрирован." };
+      if (error.code === "email_exists" || error.code === "user_already_exists")
+        return { error: "Этот Gmail уже зарегистрирован." };
       if (error.code === "weak_password")
         return {
           error:
             "Пароль не соответствует требованиям безопасности. Выберите другой пароль.",
         };
-      if (error.code === "over_email_send_rate_limit")
-        return {
-          error: "Отправка писем временно ограничена. Повторите попытку позже.",
-        };
-      return { error: "Не удалось создать аккаунт. Повторите попытку позже." };
+      return { error: "Не удалось создать аккаунт. Попробуйте ещё раз." };
     }
-    if (!data.session)
+    if (!data.user?.id || !data.user.email_confirmed_at)
       return {
-        success:
-          "Аккаунт создан. Подтвердите email по ссылке из письма, затем войдите.",
+        error: "Аккаунт создан, но вход пока недоступен. Попробуйте войти.",
+      };
+    createdUserId = data.user.id;
+  } catch {
+    return { error: "Не удалось создать аккаунт. Попробуйте ещё раз." };
+  }
+
+  let profileReady = false;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const { data: profile, error } = await admin
+        .from("profiles")
+        .select("id,email,role,organization_id")
+        .eq("id", createdUserId)
+        .maybeSingle();
+      if (
+        !error &&
+        profile?.id === createdUserId &&
+        profile.email === credentials.email &&
+        profile.role === "USER" &&
+        profile.organization_id === null
+      ) {
+        profileReady = true;
+        break;
+      }
+    } catch {
+      // A transient read failure must never grant access without a profile.
+    }
+    if (attempt < 2) await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  if (!profileReady)
+    return {
+      error: "Аккаунт создан, но профиль пока недоступен. Попробуйте войти.",
+    };
+
+  try {
+    const db = await createClient();
+    const { data: sessionData, error: signInError } =
+      await db.auth.signInWithPassword(credentials);
+    if (
+      signInError ||
+      !sessionData.session ||
+      sessionData.user?.id !== createdUserId
+    )
+      return {
+        error: "Аккаунт создан, но вход не выполнен. Попробуйте войти.",
       };
   } catch {
-    return { error: "Сервис регистрации недоступен. Повторите попытку позже." };
+    return { error: "Аккаунт создан, но вход не выполнен. Попробуйте войти." };
   }
   const profile = await getProfile();
   redirect(defaultWorkspace(profile.role));
