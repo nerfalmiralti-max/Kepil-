@@ -38,7 +38,6 @@ export default async function WorkspaceLayout({
             <strong>Актау</strong>
           </div>
           <div className="topbar-right">
-            <span className="demo-tag">ДЕМО · НЕ ОФИЦИАЛЬНЫЕ ДАННЫЕ</span>
             {profile.role !== "USER" && (
               <Link
                 className="icon-button"
