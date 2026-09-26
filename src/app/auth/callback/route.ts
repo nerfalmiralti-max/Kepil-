@@ -6,18 +6,29 @@ import type { Profile } from "@/lib/types";
 export async function GET(request: NextRequest) {
   const origin = request.nextUrl.origin;
   const code = request.nextUrl.searchParams.get("code");
+  const recovery =
+    request.nextUrl.searchParams.get("next") === "/reset-password";
   if (request.nextUrl.searchParams.has("error")) {
     const cancelled =
       request.nextUrl.searchParams.get("error") === "access_denied";
     return NextResponse.redirect(
       new URL(
-        cancelled ? "/login?error=cancelled" : "/login?error=google",
+        recovery
+          ? "/forgot-password?error=link"
+          : cancelled
+            ? "/login?error=cancelled"
+            : "/login?error=google",
         origin,
       ),
     );
   }
   if (!code)
-    return NextResponse.redirect(new URL("/login?error=callback", origin));
+    return NextResponse.redirect(
+      new URL(
+        recovery ? "/forgot-password?error=link" : "/login?error=callback",
+        origin,
+      ),
+    );
 
   try {
     const db = await createClient();
@@ -72,13 +83,20 @@ export async function GET(request: NextRequest) {
     const next = safeWorkspacePath(request.nextUrl.searchParams.get("next"));
     return NextResponse.redirect(
       new URL(
-        profile.role === "USER"
-          ? "/account"
-          : (next ?? defaultWorkspace(profile.role)),
+        next === "/reset-password"
+          ? next
+          : profile.role === "USER"
+            ? "/account"
+            : (next ?? defaultWorkspace(profile.role)),
         origin,
       ),
     );
   } catch {
-    return NextResponse.redirect(new URL("/login?error=callback", origin));
+    return NextResponse.redirect(
+      new URL(
+        recovery ? "/forgot-password?error=link" : "/login?error=callback",
+        origin,
+      ),
+    );
   }
 }

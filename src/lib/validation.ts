@@ -43,10 +43,19 @@ export function friendlyError(message: string) {
       "После возврата на доработку загрузите новую фотографию выполненных работ.",
     ],
     [/Invalid login credentials/, "Неверный email или пароль."],
-    [/Email not confirmed/i, "Подтвердите email по ссылке из письма и повторите вход."],
-    [/User already registered/i, "Аккаунт уже существует. Проверьте пароль или войдите через Google."],
-    [/Password should be at least/i, "Пароль должен содержать не менее 6 символов."],
-    [/email rate limit exceeded/i, "Отправка писем временно ограничена. Попробуйте позже."],
+    [
+      /Email not confirmed/i,
+      "Подтвердите email по ссылке из письма и повторите вход.",
+    ],
+    [/User already registered/i, "Этот email уже зарегистрирован."],
+    [
+      /Password should be at least/i,
+      "Пароль должен содержать минимум 8 символов.",
+    ],
+    [
+      /email rate limit exceeded/i,
+      "Отправка писем временно ограничена. Попробуйте позже.",
+    ],
     [
       /Permission denied|permission denied/,
       "У вашей учётной записи нет доступа к этому действию.",

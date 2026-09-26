@@ -474,135 +474,6 @@ textarea::placeholder {
   font-size: 13px;
   line-height: 1.5;
 }
-.login-page {
-  grid-template-columns: minmax(0, 1.08fr) minmax(470px, 0.92fr);
-}
-.login-story {
-  background:
-    radial-gradient(circle at 80% 75%, #18515a 0, transparent 38%), #112e38;
-  padding: 53px clamp(35px, 5vw, 88px);
-}
-.login-story:after {
-  opacity: 0.35;
-}
-.login-headline h1 {
-  font-size: clamp(36px, 3.3vw, 56px);
-  line-height: 1.18;
-  font-weight: 680;
-  letter-spacing: -0.035em;
-  max-width: 680px;
-}
-.login-headline em {
-  color: #82ded0;
-}
-.login-headline > p {
-  color: #c0d8dd;
-  font-size: 16px;
-  line-height: 1.7;
-  max-width: 570px;
-}
-.login-headline .eyebrow {
-  color: #92dbcf;
-  font-size: 11px;
-}
-.login-process {
-  font-size: 12px;
-}
-.login-process > span {
-  border-color: #4d7378;
-  border-radius: 7px;
-  padding: 8px 11px;
-}
-.login-form-area {
-  background: #f7faf8;
-  padding: 42px;
-}
-.login-form-card {
-  max-width: 440px;
-  padding: 38px;
-  background: white;
-  border: 1px solid #e0e9e6;
-  border-radius: 16px;
-  box-shadow: 0 24px 70px #12393412;
-}
-.login-form-card h2 {
-  font-size: 32px;
-}
-.login-form-card > .muted {
-  font-size: 14px;
-  margin-bottom: 28px;
-}
-.login-methods {
-  display: flex;
-  flex-direction: column;
-  gap: 23px;
-}
-.google-button {
-  background: white;
-  color: var(--ink);
-  border: 1px solid #c6d3d1;
-  font-size: 14px;
-  min-height: 48px;
-}
-.google-button:hover {
-  background: #f5faf8;
-  border-color: #83b4a8;
-}
-.login-divider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: #667b7d;
-  font-size: 12px;
-  white-space: nowrap;
-}
-.login-divider:before,
-.login-divider:after {
-  content: "";
-  height: 1px;
-  background: #dae4e1;
-  flex: 1;
-}
-.login-form-card .form-stack {
-  gap: 17px;
-}
-.login-form-card .form-stack label {
-  font-size: 13px;
-  font-weight: 650;
-}
-.login-form-card .form-stack input {
-  margin-top: 7px;
-  min-height: 47px;
-}
-.login-form-card .form-stack > .small {
-  font-size: 11px;
-}
-.login-roles {
-  font-size: 11px;
-}
-.password-field {
-  display: block;
-  position: relative;
-}
-.password-field input {
-  padding-right: 48px;
-}
-.password-toggle {
-  position: absolute;
-  right: 4px;
-  top: 10px;
-  width: 39px;
-  height: 39px;
-  display: grid;
-  place-items: center;
-  background: transparent;
-  border: 0;
-  border-radius: 6px;
-  color: #536e71;
-}
-.password-toggle:hover {
-  background: #edf5f1;
-}
 .access-page {
   min-height: 100vh;
   display: grid;
@@ -731,33 +602,11 @@ textarea::placeholder {
   .metric > span {
     font-size: 11px;
   }
-  .login-form-card {
-    padding: 29px;
-  }
 }
 @media (max-width: 900px) {
   .detail-grid > .stack:last-child {
     display: flex;
     flex-direction: column;
-  }
-  .login-page {
-    grid-template-columns: 1fr;
-  }
-  .login-story {
-    min-height: auto;
-    padding: 32px;
-  }
-  .login-headline {
-    padding: 40px 0 25px;
-  }
-  .login-headline h1 {
-    font-size: clamp(31px, 5vw, 42px);
-  }
-  .login-form-area {
-    padding: 34px 24px 55px;
-  }
-  .login-demo {
-    display: none;
   }
 }
 @media (max-width: 1050px) {
@@ -887,34 +736,6 @@ textarea::placeholder {
   .sla-hero strong {
     font-size: 18px;
   }
-  .login-story {
-    padding: 28px 24px;
-  }
-  .login-headline {
-    padding: 36px 0 10px;
-  }
-  .login-headline h1 {
-    font-size: 31px;
-  }
-  .login-headline > p {
-    font-size: 14px;
-    margin-top: 19px;
-  }
-  .login-process {
-    font-size: 10px;
-    gap: 7px;
-    margin-top: 25px;
-  }
-  .login-form-area {
-    padding: 24px 16px 45px;
-  }
-  .login-form-card {
-    border-radius: 12px;
-    padding: 24px;
-  }
-  .login-form-card h2 {
-    font-size: 27px;
-  }
   .access-card {
     padding: 27px;
   }
@@ -935,25 +756,6 @@ textarea::placeholder {
   }
   .metric > span {
     font-size: 10px;
-  }
-  .login-roles {
-    gap: 10px;
-  }
-  .login-story {
-    padding: 23px 22px;
-  }
-  .login-headline {
-    padding: 25px 0 3px;
-  }
-  .login-headline h1 {
-    font-size: 27px;
-  }
-  .login-headline > p {
-    margin-top: 13px;
-    font-size: 13px;
-  }
-  .login-process {
-    display: none;
   }
 }
 @media (prefers-reduced-motion: reduce) {

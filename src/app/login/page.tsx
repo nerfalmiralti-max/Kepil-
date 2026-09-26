@@ -1,13 +1,8 @@
 import { redirect } from "next/navigation";
-import {
-  ShieldCheck,
-  ArrowRight,
-  Building2,
-  ClipboardCheck,
-  Wrench,
-} from "lucide-react";
 import { configured, createClient } from "@/lib/supabase/server";
-import { LoginForm } from "@/components/forms";
+import { LoginForm } from "@/components/auth-forms";
+import { getProfile } from "@/lib/data";
+import { defaultWorkspace } from "@/lib/auth-routing";
 export const dynamic = "force-dynamic";
 export default async function LoginPage({
   searchParams,
@@ -20,60 +15,45 @@ export default async function LoginPage({
   const {
     data: { user },
   } = await db.auth.getUser();
-  if (user && params.error !== "profile") redirect("/");
+  if (user && params.error !== "profile") {
+    const profile = await getProfile();
+    redirect(defaultWorkspace(profile.role));
+  }
   return (
     <div className="login-page">
       <section className="login-story">
-        <div className="brand">
-          <span className="brand-mark">
-            <ShieldCheck size={27} />
-          </span>
-          <span>
-            KEPIL<small>ГОРОД НА ГАРАНТИИ</small>
-          </span>
+        <div className="login-story-top">
+          <strong>KEPIL</strong>
+          <span>ГОРОД НА ГАРАНТИИ</span>
         </div>
         <div className="login-headline">
-          <div className="eyebrow">АКТАУ · МАНГИСТАУСКАЯ ОБЛАСТЬ</div>
+          <div className="login-region">АКТАУ · МАНГИСТАУСКАЯ ОБЛАСТЬ</div>
           <h1>
-            Срок гарантии.
+            Гарантия
             <br />
-            Чёткая ответственность.
-            <br />
-            <em>Проверенный результат.</em>
+            должна работать<span>.</span>
           </h1>
           <p>
-            Рабочее пространство для муниципальных служб, инспекторов и
-            подрядчиков.
+            Объекты города, гарантийные сроки и ответственные исполнители — в
+            одной проверяемой истории.
           </p>
-          <div className="login-process">
-            <span>Дефект</span>
-            <ArrowRight size={15} />
-            <span>Гарантия</span>
-            <ArrowRight size={15} />
-            <span>Ремонт</span>
-            <ArrowRight size={15} />
-            <span>Приёмка</span>
-          </div>
         </div>
         <div className="login-demo">
-          Демонстрационный проект Smart City Aktau
-          <br />
-          <span>
-            Сценарии муниципальной инфраструктуры, не официальные данные.
-          </span>
+          <span>ДЕМОНСТРАЦИОННЫЙ ПРОЕКТ</span>
+          <span>Данные не являются официальными</span>
         </div>
       </section>
       <section className="login-form-area">
         <div className="login-form-card">
-          <div className="eyebrow">ДОБРО ПОЖАЛОВАТЬ</div>
-          <h2>Вход в KEPIL</h2>
-          <p className="muted">
-            Введите email и пароль: войдите или создайте личный аккаунт одним действием.
+          <div className="login-form-kicker">ЛИЧНЫЙ ДОСТУП</div>
+          <h2>Начните работу</h2>
+          <p className="login-form-intro">
+            Войдите с паролем KEPIL или создайте новый аккаунт с адресом Gmail.
           </p>
           {params.error === "profile" && (
             <div className="notice danger">
-              Не удалось создать профиль. Повторите вход; если ошибка сохранится,
-              обратитесь к администратору KEPIL.
+              Не удалось создать профиль. Повторите вход; если ошибка
+              сохранится, обратитесь к администратору KEPIL.
             </div>
           )}
           {params.error === "google" && (
@@ -93,20 +73,6 @@ export default async function LoginPage({
             </div>
           )}
           <LoginForm />
-          <div className="login-roles">
-            <span>
-              <Building2 size={16} />
-              Муниципальная служба
-            </span>
-            <span>
-              <ClipboardCheck size={16} />
-              Инспектор
-            </span>
-            <span>
-              <Wrench size={16} />
-              Подрядчик
-            </span>
-          </div>
         </div>
       </section>
     </div>

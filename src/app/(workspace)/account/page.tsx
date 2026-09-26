@@ -1,66 +1,78 @@
 import Link from "next/link";
-import { ShieldCheck, UserRound, Building2, ArrowRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { getProfile } from "@/lib/data";
-import { PageHeader } from "@/components/ui";
 import { date, roleNames } from "@/lib/labels";
 
 export default async function AccountPage() {
   const profile = await getProfile();
+  const firstName = profile.full_name.split(" ")[0] || "пользователь";
   return (
-    <>
-      <PageHeader
-        eyebrow="ЛИЧНЫЙ КАБИНЕТ"
-        title="Мой аккаунт"
-        description="Ваш доступ к KEPIL создан автоматически и привязан к подтверждённому email."
-      />
-      <div className="account-grid">
-        <section className="panel account-panel">
-          <div className="account-panel-icon">
-            <UserRound size={25} />
+    <div className="member-page">
+      <header className="member-heading">
+        <span>ЛИЧНЫЙ ДОСТУП / KEPIL</span>
+        <h1>Добро пожаловать, {firstName}.</h1>
+        <p>
+          Ваш аккаунт активен. Здесь находятся данные профиля и доступные
+          разделы.
+        </p>
+      </header>
+      <div className="member-columns">
+        <section className="member-section">
+          <div className="member-section-top">
+            <h2>Учётная запись</h2>
           </div>
-          <h2>{profile.full_name}</h2>
-          <p className="muted">{profile.email}</p>
-          <div className="account-facts">
+          <dl className="member-details">
             <div>
-              <span>Роль</span>
-              <strong>{roleNames[profile.role]}</strong>
+              <dt>Имя</dt>
+              <dd>{profile.full_name}</dd>
             </div>
             <div>
-              <span>Организация</span>
-              <strong>
-                {profile.organization_id ? "Назначена" : "Не назначена"}
-              </strong>
+              <dt>Email</dt>
+              <dd>{profile.email}</dd>
             </div>
             <div>
-              <span>Аккаунт создан</span>
-              <strong>{date(profile.created_at)}</strong>
+              <dt>Роль</dt>
+              <dd>{roleNames[profile.role]}</dd>
             </div>
-          </div>
+            <div>
+              <dt>Организация</dt>
+              <dd>{profile.organization_id ? "Назначена" : "Не назначена"}</dd>
+            </div>
+            <div>
+              <dt>Создан</dt>
+              <dd>{date(profile.created_at)}</dd>
+            </div>
+          </dl>
         </section>
-        <section className="panel account-panel account-intro">
-          <div className="account-panel-icon">
-            <ShieldCheck size={25} />
+        <section className="member-section">
+          <div className="member-section-top">
+            <h2>Доступ</h2>
           </div>
-          <h2>KEPIL: город на гарантии</h2>
-          <p>
-            Платформа связывает городские объекты, гарантийные сроки,
-            подрядчиков и проверку выполненного ремонта.
-          </p>
           {profile.role === "USER" ? (
-            <div className="notice info">
-              <Building2 size={18} /> Муниципальные действия доступны после
-              назначения роли администратором.
+            <div className="member-access-copy">
+              <strong>Базовый доступ открыт</strong>
+              <p>
+                Вы можете просматривать информацию о KEPIL. Муниципальные
+                действия появятся после назначения роли администратором.
+              </p>
             </div>
           ) : (
-            <Link className="button primary" href="/">
-              Открыть рабочее пространство <ArrowRight size={16} />
-            </Link>
+            <div className="member-access-copy">
+              <strong>Рабочее пространство доступно</strong>
+              <p>
+                Ваша роль определяет доступ к реестру, заявкам и проверке
+                выполненных работ.
+              </p>
+              <Link className="member-link" href="/">
+                Перейти к работе <ArrowUpRight size={17} />
+              </Link>
+            </div>
           )}
-          <Link className="text-link" href="/system">
-            Как работает KEPIL <ArrowRight size={15} />
+          <Link className="member-link" href="/system">
+            Как работает KEPIL <ArrowUpRight size={17} />
           </Link>
         </section>
       </div>
-    </>
+    </div>
   );
 }

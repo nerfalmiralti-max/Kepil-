@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getProfile } from "@/lib/data";
+import { defaultWorkspace } from "@/lib/auth-routing";
+import { validateLogin, validateRegistration } from "@/lib/auth-validation";
 import {
   defectSchema,
   friendlyError,
@@ -16,34 +18,122 @@ export async function loginAction(
   _: ActionState,
   form: FormData,
 ): Promise<ActionState> {
-  const input = z
-    .object({ email: z.email(), password: z.string().min(1).max(256) })
-    .safeParse(Object.fromEntries(form));
-  if (!input.success) return { error: "Введите корректный email и пароль." };
+  const input = validateLogin(
+    String(form.get("email") ?? ""),
+    String(form.get("password") ?? ""),
+  );
+  if (!input.data) return { error: input.error };
   try {
     const db = await createClient();
     const { error } = await db.auth.signInWithPassword(input.data);
+    if (error)
+      return {
+        error:
+          error.code === "email_not_confirmed"
+            ? "Подтвердите email по ссылке из письма и повторите вход."
+            : "Неверный email или пароль.",
+      };
+  } catch {
+    return { error: "Сервис входа недоступен. Повторите попытку позже." };
+  }
+  const profile = await getProfile();
+  redirect(defaultWorkspace(profile.role));
+}
+
+export async function registerAction(
+  _: ActionState,
+  form: FormData,
+): Promise<ActionState> {
+  const input = validateRegistration(
+    String(form.get("email") ?? ""),
+    String(form.get("password") ?? ""),
+    String(form.get("repeat_password") ?? ""),
+  );
+  if (!input.data) return { error: input.error };
+  try {
+    const db = await createClient();
+    const { data, error } = await db.auth.signUp(input.data);
     if (error) {
-      if (error.code !== "invalid_credentials")
-        return { error: friendlyError(error.message) };
-      if (input.data.password.length < 6)
-        return { error: "Пароль должен содержать не менее 6 символов." };
-      const { data: signup, error: signupError } = await db.auth.signUp(
-        input.data,
-      );
-      if (signupError) return { error: friendlyError(signupError.message) };
-      if (!signup.session)
+      if (error.code === "user_already_exists")
+        return { error: "Этот email уже зарегистрирован." };
+      if (error.code === "weak_password")
         return {
-          success:
-            "Проверьте почту и подтвердите адрес, затем снова нажмите «Продолжить». Если аккаунт уже существует, проверьте пароль.",
+          error:
+            "Пароль не соответствует требованиям безопасности. Выберите другой пароль.",
         };
+      if (error.code === "over_email_send_rate_limit")
+        return {
+          error: "Отправка писем временно ограничена. Повторите попытку позже.",
+        };
+      return { error: "Не удалось создать аккаунт. Повторите попытку позже." };
     }
+    if (!data.session)
+      return {
+        success:
+          "Аккаунт создан. Подтвердите email по ссылке из письма, затем войдите.",
+      };
+  } catch {
+    return { error: "Сервис регистрации недоступен. Повторите попытку позже." };
+  }
+  const profile = await getProfile();
+  redirect(defaultWorkspace(profile.role));
+}
+
+export async function requestPasswordResetAction(
+  _: ActionState,
+  form: FormData,
+): Promise<ActionState> {
+  const email = String(form.get("email") ?? "")
+    .trim()
+    .toLowerCase();
+  if (!z.email().safeParse(email).success)
+    return { error: "Введите корректный email." };
+  try {
+    const db = await createClient();
+    const site =
+      process.env.NODE_ENV === "development"
+        ? "http://localhost:3000"
+        : "https://kepil.vercel.app";
+    const { error } = await db.auth.resetPasswordForEmail(email, {
+      redirectTo: `${site}/auth/callback?next=/reset-password`,
+    });
+    if (error?.code === "over_email_send_rate_limit")
+      return {
+        error: "Отправка писем временно ограничена. Повторите попытку позже.",
+      };
+    if (error)
+      return { error: "Не удалось отправить письмо. Повторите попытку позже." };
   } catch {
     return {
-      error: "Сервис входа недоступен. Проверьте подключение Supabase.",
+      error: "Сервис восстановления недоступен. Повторите попытку позже.",
     };
   }
-  redirect("/");
+  return {
+    success:
+      "Если аккаунт существует, письмо со ссылкой для смены пароля отправлено.",
+  };
+}
+
+export async function updatePasswordAction(
+  _: ActionState,
+  form: FormData,
+): Promise<ActionState> {
+  const password = String(form.get("password") ?? "");
+  const repeat = String(form.get("repeat_password") ?? "");
+  if (password.length < 8)
+    return { error: "Пароль должен содержать минимум 8 символов." };
+  if (password.length > 256) return { error: "Пароль слишком длинный." };
+  if (password !== repeat) return { error: "Пароли не совпадают." };
+  const db = await createClient();
+  const {
+    data: { user },
+  } = await db.auth.getUser();
+  if (!user) return { error: "Ссылка устарела. Запросите новое письмо." };
+  const { error } = await db.auth.updateUser({ password });
+  if (error)
+    return { error: "Не удалось изменить пароль. Запросите новую ссылку." };
+  const profile = await getProfile();
+  redirect(defaultWorkspace(profile.role));
 }
 export async function logoutAction() {
   const db = await createClient();
