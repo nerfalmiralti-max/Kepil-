@@ -142,7 +142,7 @@ export function Navigation({
               onClick={() => setOpen(false)}
             >
               <Network size={18} />
-              Как работает KEPIL
+              О системе
             </Link>
             {profile.role !== "USER" && (
               <Link
