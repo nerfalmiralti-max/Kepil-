@@ -1,3 +1,5 @@
+import { IntroTrigger } from "@/components/intro";
+
 const workflow = [
   ["Объект", "В системе хранится объект, его контракт, подрядчик и гарантийный период."],
   ["Дефект", "При появлении проблемы дефект связывается с конкретным объектом."],
@@ -36,6 +38,7 @@ export default function SystemPage() {
         <span className="eyebrow">О СИСТЕМЕ</span>
         <h1>Как работает KEPIL</h1>
         <p>От городского объекта до подтверждённого ремонта.</p>
+        <IntroTrigger />
       </header>
 
       <div className="system-sheet">

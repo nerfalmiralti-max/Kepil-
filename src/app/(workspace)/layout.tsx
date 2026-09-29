@@ -3,6 +3,7 @@ import { Bell, ChevronRight, ShieldCheck } from "lucide-react";
 import { getProfile } from "@/lib/data";
 import { createClient } from "@/lib/supabase/server";
 import { Navigation } from "@/components/navigation";
+import { IntroProvider } from "@/components/intro";
 export const dynamic = "force-dynamic";
 export default async function WorkspaceLayout({
   children,
@@ -21,6 +22,7 @@ export default async function WorkspaceLayout({
       ).data
     : null;
   return (
+    <IntroProvider>
     <div className="app-shell">
       <a className="skip-link" href="#main">
         Перейти к содержимому
@@ -58,5 +60,6 @@ export default async function WorkspaceLayout({
         </footer>
       </div>
     </div>
+    </IntroProvider>
   );
 }
