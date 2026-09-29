@@ -74,6 +74,18 @@ export function IntroProvider({ children }: { children: ReactNode }) {
           event.preventDefault();
           dismiss();
         }}
+        onKeyDown={(event) => {
+          if (event.key !== "Tab") return;
+          const buttons = Array.from(
+            event.currentTarget.querySelectorAll<HTMLButtonElement>("button:not(:disabled)"),
+          );
+          const currentIndex = buttons.indexOf(document.activeElement as HTMLButtonElement);
+          const nextIndex = currentIndex < 0
+            ? event.shiftKey ? buttons.length - 1 : 0
+            : (currentIndex + (event.shiftKey ? -1 : 1) + buttons.length) % buttons.length;
+          buttons[nextIndex]?.focus();
+          event.preventDefault();
+        }}
       >
         <div className="intro-header">
           <span className="eyebrow">ЗНАКОМСТВО С KEPIL</span>
