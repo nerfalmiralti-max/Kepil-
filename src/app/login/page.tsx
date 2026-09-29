@@ -3,6 +3,7 @@ import { configured, createClient } from "@/lib/supabase/server";
 import { LoginForm } from "@/components/auth-forms";
 import { getProfile } from "@/lib/data";
 import { defaultWorkspace } from "@/lib/auth-routing";
+import { LoginPixelSnow } from "@/components/effects/LoginPixelSnow";
 export const dynamic = "force-dynamic";
 export default async function LoginPage({
   searchParams,
@@ -22,6 +23,7 @@ export default async function LoginPage({
   return (
     <div className="login-page">
       <section className="login-story">
+        <LoginPixelSnow />
         <div className="login-story-top">
           <strong>KEPIL</strong>
           <span>ГОРОД НА ГАРАНТИИ</span>

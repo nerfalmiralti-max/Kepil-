@@ -1668,12 +1668,30 @@ strong {
   background: #f5f6f3;
 }
 .login-story {
+  --login-particle-color: #91b8b6;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   background: #173841;
   color: #f3f7f5;
   padding: clamp(32px, 4.5vw, 72px);
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+}
+.login-particles {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.22;
+  mix-blend-mode: screen;
+}
+.login-story-top,
+.login-headline,
+.login-demo {
+  position: relative;
+  z-index: 1;
 }
 .login-story-top {
   display: flex;
